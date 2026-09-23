@@ -1,17 +1,18 @@
 import type { Result } from './protocol';
 
 /** Returns the finished AI-generated card unchanged; text is baked in by the image-generation step. */
-export async function renderShareCard(result: Result): Promise<Blob> {
+export function renderShareCard(result: Result): Blob {
   const assets = result.assets as Record<string, unknown>;
   const source = assets.shareImage;
   if (typeof source !== 'string' || !source.startsWith('data:image/')) {
     throw new Error('鑑定結果に完成済みのシェアカード画像がありません。鑑定結果ZIPを確認してください。');
   }
-  const response = await fetch(source);
-  if (!response.ok) throw new Error('シェアカード画像を読み込めませんでした。');
-  const blob = await response.blob();
-  if (!blob.type.startsWith('image/')) throw new Error('シェアカードが画像形式ではありません。');
-  return blob;
+  const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,([\s\S]+)$/.exec(source);
+  if (!match || match[1] !== 'image/png') throw new Error('シェアカード画像がPNG形式ではありません。鑑定結果ZIPを確認してください。');
+  const decoded = atob(match[2]);
+  const bytes = new Uint8Array(decoded.length);
+  for (let index = 0; index < decoded.length; index += 1) bytes[index] = decoded.charCodeAt(index);
+  return new Blob([bytes], { type: match[1] });
 }
 
 export function shareCardMessage(): string {
