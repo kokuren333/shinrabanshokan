@@ -3,49 +3,194 @@
   "$id": "urn:shinra-bansho-kan:schemas:result:1.0.0",
   "title": "森羅万象鑑 鑑定結果",
   "type": "object",
-  "required": ["schemaVersion", "subject", "meta", "baseInfo", "systems", "crossAnalysis", "domainProfiles", "summary", "limitations", "assets"],
+  "required": [
+    "schemaVersion",
+    "subject",
+    "meta",
+    "baseInfo",
+    "systems",
+    "crossAnalysis",
+    "domainProfiles",
+    "summary",
+    "limitations",
+    "assets"
+  ],
   "properties": {
-    "schemaVersion": { "type": "string", "pattern": "^1\\." },
-    "subject": { "type": "object" },
-    "meta": { "type": "object" },
-    "baseInfo": { "type": "object" },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\."
+    },
+    "subject": {
+      "type": "object"
+    },
+    "meta": {
+      "type": "object"
+    },
+    "baseInfo": {
+      "type": "object"
+    },
     "systems": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "status", "inputsUsed", "calculations", "facts", "interpretation", "uncertainties", "sources"],
+        "required": [
+          "id",
+          "name",
+          "status",
+          "inputsUsed",
+          "calculations",
+          "facts",
+          "interpretation",
+          "uncertainties",
+          "sources"
+        ],
         "properties": {
-          "id": { "type": "string" }, "name": { "type": "string" }, "status": { "type": "string" },
-          "inputsUsed": { "type": "array", "items": { "type": "string" } },
-          "calculations": { "$ref": "#/$defs/entries" }, "facts": { "$ref": "#/$defs/entries" },
-          "interpretation": { "$ref": "#/$defs/entries" },
-          "uncertainties": { "type": "array", "items": { "type": "string" } },
-          "sources": { "$ref": "#/$defs/entries" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "inputsUsed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "calculations": {
+            "$ref": "#/$defs/entries"
+          },
+          "facts": {
+            "$ref": "#/$defs/entries"
+          },
+          "interpretation": {
+            "$ref": "#/$defs/entries"
+          },
+          "uncertainties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sources": {
+            "$ref": "#/$defs/entries"
+          }
         },
         "additionalProperties": true
       }
     },
     "crossAnalysis": {
       "type": "object",
-      "required": ["strongThemes", "moderateThemes", "contradictions", "dependencyWarnings"],
+      "required": [
+        "strongThemes",
+        "moderateThemes",
+        "contradictions",
+        "dependencyWarnings"
+      ],
       "properties": {
-        "strongThemes": { "$ref": "#/$defs/entries" }, "moderateThemes": { "$ref": "#/$defs/entries" },
-        "contradictions": { "$ref": "#/$defs/entries" }, "dependencyWarnings": { "$ref": "#/$defs/entries" }
+        "strongThemes": {
+          "$ref": "#/$defs/entries"
+        },
+        "moderateThemes": {
+          "$ref": "#/$defs/entries"
+        },
+        "contradictions": {
+          "$ref": "#/$defs/entries"
+        },
+        "dependencyWarnings": {
+          "$ref": "#/$defs/entries"
+        }
       },
       "additionalProperties": true
     },
-    "domainProfiles": { "type": "object" },
-    "summary": { "oneOf": [{ "type": "string" }, { "type": "object" }] },
-    "limitations": { "oneOf": [{ "type": "array" }, { "type": "object" }] },
+    "domainProfiles": {
+      "type": "object"
+    },
+    "summary": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "limitations": {
+      "oneOf": [
+        {
+          "type": "array"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
     "assets": {
       "type": "object",
       "properties": {
-        "summaryImage": { "type": "string", "const": "assets/summary.png", "description": "ZIP内の鑑定書用画像への相対パス" },
-        "shareImage": { "type": "string", "const": "assets/share.png", "description": "ZIP内のシェア用画像への相対パス" }
+        "shareImage": {
+          "type": "string",
+          "const": "assets/share.png",
+          "description": "ZIP内の完成済みシェアカード画像への相対パス"
+        },
+        "shareCardCopy": {
+          "type": "object",
+          "required": [
+            "title",
+            "description",
+            "themes"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "themes": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 3,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24
+              }
+            }
+          },
+          "additionalProperties": false,
+          "description": "鑑定完了・スキーマ検証後に作る個人情報を含まないカード本文"
+        }
       },
-      "additionalProperties": true
+      "additionalProperties": true,
+      "required": [
+        "shareImage",
+        "shareCardCopy"
+      ]
     }
   },
-  "$defs": { "entries": { "type": "array", "items": { "oneOf": [{ "type": "string" }, { "type": "object" }] } } },
+  "$defs": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      }
+    }
+  },
   "additionalProperties": true
 }
