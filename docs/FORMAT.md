@@ -6,7 +6,7 @@
 
 ## Result ZIP
 
-A current `shinra-bansho-result.zip` contains `result.json`, `report.md`, `manifest.json`, and one generated, finished share card at `assets/share.png` (1200×675, 16:9). The JSON references it with `assets.shareImage`; `assets.shareCardCopy` contains the sanitized Japanese title, description, and 2–3 themes baked into the image. No personal identifiers belong in the card. The app shares or downloads this image unchanged. The report's portrait 2:3 cover is rendered with fixed CSS.
+A current `shinra-bansho-result.zip` contains `result.json`, `report.md`, `manifest.json`, and one generated, finished share card at `assets/share.png` (1200×675, 16:9). The JSON references it with `assets.shareImage`; `assets.shareCardCopy` contains the sanitized Japanese title, description, and 2–3 themes baked into the image. No personal identifiers belong in the card. The app shares or downloads this image unchanged. The report's landscape 3:2 cover is rendered with fixed CSS.
 
 Manifest `format` is `shinra-bansho-result`; `version` starts with `1.`. The result envelope has `schemaVersion`, `subject`, `meta`, `baseInfo`, `systems`, `crossAnalysis`, `domainProfiles`, `summary`, `limitations`, and `assets`. Each system requires `id`, `name`, `status`, and arrays for `inputsUsed`, `calculations`, `facts`, `interpretation`, `uncertainties`, and `sources`. A one-off value still belongs in a one-item array; unused fields use `[]`. Cross analysis requires arrays for strong/moderate themes, contradictions, and dependency warnings.
 

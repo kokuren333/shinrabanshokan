@@ -16,5 +16,5 @@ export function renderShareCard(result: Result): Blob {
 }
 
 export function shareCardMessage(): string {
-  return '森羅万象鑑の鑑定結果カードを共有します。 #森羅万象鑑 #占い';
+  return '森羅万象鑑の鑑定結果カードを共有します。\nhttps://kokuren333.github.io/shinrabanshokan/\n#森羅万象鑑 #占い';
 }
