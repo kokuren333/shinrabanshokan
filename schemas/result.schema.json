@@ -1,1 +1,44 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"urn:shinra-bansho-kan:schemas:result:1.0.0","title":"森羅万象鑑 鑑定結果","type":"object","required":["schemaVersion","subject","meta","systems","crossAnalysis","summary"],"properties":{"schemaVersion":{"type":"string"},"subject":{"type":"object"},"meta":{"type":"object"},"baseInfo":{"type":"object"},"systems":{"type":"array","items":{"type":"object","required":["id"],"properties":{"id":{"type":"string"},"name":{"type":"string"},"status":{"type":"string"},"inputsUsed":{"type":"array","items":{"type":"string"}},"calculations":{"type":"array"},"facts":{"type":"array"},"interpretation":{"type":"array"},"uncertainties":{"type":"array","items":{"type":"string"}},"sources":{"type":"array"}},"additionalProperties":true}},"crossAnalysis":{"type":"object","properties":{"strongThemes":{"type":"array"},"moderateThemes":{"type":"array"},"contradictions":{"type":"array"},"dependencyWarnings":{"type":"array"}}},"domainProfiles":{"type":"object"},"summary":{"oneOf":[{"type":"string"},{"type":"object"}]},"limitations":{"oneOf":[{"type":"array"},{"type":"object"}]},"assets":{"type":"object"}},"additionalProperties":true}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:shinra-bansho-kan:schemas:result:1.0.0",
+  "title": "森羅万象鑑 鑑定結果",
+  "type": "object",
+  "required": ["schemaVersion", "subject", "meta", "baseInfo", "systems", "crossAnalysis", "domainProfiles", "summary", "limitations", "assets"],
+  "properties": {
+    "schemaVersion": { "type": "string", "pattern": "^1\\." },
+    "subject": { "type": "object" },
+    "meta": { "type": "object" },
+    "baseInfo": { "type": "object" },
+    "systems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "status", "inputsUsed", "calculations", "facts", "interpretation", "uncertainties", "sources"],
+        "properties": {
+          "id": { "type": "string" }, "name": { "type": "string" }, "status": { "type": "string" },
+          "inputsUsed": { "type": "array", "items": { "type": "string" } },
+          "calculations": { "$ref": "#/$defs/entries" }, "facts": { "$ref": "#/$defs/entries" },
+          "interpretation": { "$ref": "#/$defs/entries" },
+          "uncertainties": { "type": "array", "items": { "type": "string" } },
+          "sources": { "$ref": "#/$defs/entries" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "crossAnalysis": {
+      "type": "object",
+      "required": ["strongThemes", "moderateThemes", "contradictions", "dependencyWarnings"],
+      "properties": {
+        "strongThemes": { "$ref": "#/$defs/entries" }, "moderateThemes": { "$ref": "#/$defs/entries" },
+        "contradictions": { "$ref": "#/$defs/entries" }, "dependencyWarnings": { "$ref": "#/$defs/entries" }
+      },
+      "additionalProperties": true
+    },
+    "domainProfiles": { "type": "object" },
+    "summary": { "oneOf": [{ "type": "string" }, { "type": "object" }] },
+    "limitations": { "oneOf": [{ "type": "array" }, { "type": "object" }] },
+    "assets": { "type": "object" }
+  },
+  "$defs": { "entries": { "type": "array", "items": { "oneOf": [{ "type": "string" }, { "type": "object" }] } } },
+  "additionalProperties": true
+}
