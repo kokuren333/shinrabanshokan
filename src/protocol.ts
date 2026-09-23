@@ -12,6 +12,13 @@ const Text=z.union([z.string(),z.record(z.unknown())]);
 export const ResultSchema=z.object({schemaVersion:z.string(),subject:z.record(z.unknown()).default({}),meta:z.record(z.unknown()).default({}),baseInfo:z.record(z.unknown()).default({}),systems:z.array(z.object({id:z.string(),name:z.string().optional(),status:z.string().optional(),inputsUsed:z.array(z.string()).optional(),calculations:z.array(Text).optional(),facts:z.array(Text).optional(),interpretation:z.array(Text).optional(),uncertainties:z.array(z.string()).optional(),sources:z.array(Text).optional()}).passthrough()).default([]),crossAnalysis:z.object({strongThemes:z.array(Text).default([]),moderateThemes:z.array(Text).default([]),contradictions:z.array(Text).default([]),dependencyWarnings:z.array(Text).default([])}).passthrough().default({}),domainProfiles:z.record(z.unknown()).default({}),summary:z.union([z.string(),z.record(z.unknown())]).default({}),limitations:z.union([z.array(z.string()),z.record(z.unknown())]).default([]),assets:z.record(z.unknown()).default({})}).passthrough();
 export type Request=z.infer<typeof RequestSchema>;export type Result=z.infer<typeof ResultSchema>;
 function parseJson(text:string){try{return JSON.parse(text)}catch{throw Error('JSONを読み取れません。ファイルの形式を確認してください。')}}
+function detectImageMime(bytes:Uint8Array):string|undefined{
+  if(bytes.length>=8&&bytes[0]===0x89&&bytes[1]===0x50&&bytes[2]===0x4e&&bytes[3]===0x47&&bytes[4]===0x0d&&bytes[5]===0x0a&&bytes[6]===0x1a&&bytes[7]===0x0a)return 'image/png';
+  if(bytes.length>=3&&bytes[0]===0xff&&bytes[1]===0xd8&&bytes[2]===0xff)return 'image/jpeg';
+  if(bytes.length>=12&&String.fromCharCode(...bytes.slice(0,4))==='RIFF'&&String.fromCharCode(...bytes.slice(8,12))==='WEBP')return 'image/webp';
+  if(bytes.length>=6&&(String.fromCharCode(...bytes.slice(0,6))==='GIF87a'||String.fromCharCode(...bytes.slice(0,6))==='GIF89a'))return 'image/gif';
+  return undefined;
+}
 
 export function makePrompt(r:Request,names:Record<string,string>={},output:'package'|'markdown'='package'){
   const context=`あなたは歴史的背景と計算根拠を区別する総合占術アナリストです。添付request.jsonの人物情報、問い、指定体系に限って鑑定してください。\n\n## 対象者\n${JSON.stringify(r.subject,null,2)}\n## 鑑定希望\n${[...r.questions,r.freeformQuestion].filter(Boolean).join('、')||'人物の資質と人生テーマ'}\n## 指定占術\n${r.requestedSystems.map(id=>names[id]||id).join('、')}\n\n出生時刻・場所などの不足情報を推測で埋めず、該当項目はunavailableとしてください。流派差、入力精度、計算根拠、出典、不確実性を明記してください。計算値や出典を捏造しないでください。複数体系が同一の暦・天体位置・氏名に依存する場合、独立した票として重複計上しないでください。Dreamspellと歴史的マヤ暦など、近代体系と伝統を混同しないでください。占術を科学的事実、診断、確定的未来予測として書かないでください。\n\n## 鑑定の内容品質\n- 指定された質問テーマと自由記述の問いを一つずつ見出しで扱い、問いに直接答えてください。\n- 各占術について、算出できた事実、そこからの解釈、質問への関係、限界を分けてください。情報がある体系では、その体系固有の象徴を使った具体的で重複しない読みを複数示してください。情報が足りない体系は短く保留し、文章量のために一般論を水増ししないでください。\n- 総合分析の各テーマは、根拠となるsystemsのid、依存関係、確信度の理由を示してください。食い違う読みも消さず、どう両立しうるかを述べてください。\n- 質問ごとの実用的な省察案を示し、占術を根拠に重大な決断を促さないでください。`;
@@ -29,8 +36,17 @@ export async function parseResultBundle(file:File):Promise<Result>{
     const manifestFile=zip.file('manifest.json');
     if(manifestFile){const manifest=parseJson(await manifestFile.async('text'));if(manifest.format&&manifest.format!=='shinra-bansho-result')throw Error('manifestの形式が鑑定結果ではありません。');if(manifest.version&&!/^1\./.test(manifest.version))throw Error(`未対応の結果形式バージョンです: ${manifest.version}`)}
     data=parseJson(await entry.async('text'));data.assets=data.assets||{};
-    for(const [assetName,key,mime] of [['summary.png','summaryImage','image/png'],['share.png','shareImage','image/png']] as const){const asset=zip.file(`assets/${assetName}`);if(asset)data.assets[key]=`data:${mime};base64,${await asset.async('base64')}`}
+    const assetWarnings:string[]=[];
+    for(const [defaultName,key] of [['summary.png','summaryImage'],['share.png','shareImage']] as const){
+      const referenced=typeof data.assets[key]==='string'?String(data.assets[key]).replace(/^\.\//,''):'';
+      const candidates=[referenced,`assets/${defaultName}`,defaultName].filter((path,index,all)=>path&&all.indexOf(path)===index);
+      let asset:JSZip.JSZipObject|null=null;let assetPath='';
+      for(const path of candidates){asset=zip.file(path);if(asset){assetPath=path;break}}
+      if(asset){const bytes=await asset.async('uint8array');const mime=detectImageMime(bytes);if(mime)data.assets[key]=`data:${mime};base64,${await asset.async('base64')}`;else{delete data.assets[key];assetWarnings.push(`${assetPath}は対応している画像形式ではありません`)}}
+      else if(referenced&&!referenced.startsWith('data:image/')){delete data.assets[key];assetWarnings.push(`${referenced}がZIP内にありません`)}
+    }
     const markdown=zip.file('report.md');if(markdown)reportMarkdown=await markdown.async('text');
+    if(assetWarnings.length)data.meta={...(data.meta||{}),assetWarnings};
   }else data=parseJson(await file.text());
   const importWarnings:string[]=[];
   if(Array.isArray(data?.systems))data.systems=data.systems.map((system:any)=>{
