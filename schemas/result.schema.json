@@ -37,7 +37,14 @@
     "domainProfiles": { "type": "object" },
     "summary": { "oneOf": [{ "type": "string" }, { "type": "object" }] },
     "limitations": { "oneOf": [{ "type": "array" }, { "type": "object" }] },
-    "assets": { "type": "object" }
+    "assets": {
+      "type": "object",
+      "properties": {
+        "summaryImage": { "type": "string", "const": "assets/summary.png", "description": "ZIP内の鑑定書用画像への相対パス" },
+        "shareImage": { "type": "string", "const": "assets/share.png", "description": "ZIP内のシェア用画像への相対パス" }
+      },
+      "additionalProperties": true
+    }
   },
   "$defs": { "entries": { "type": "array", "items": { "oneOf": [{ "type": "string" }, { "type": "object" }] } } },
   "additionalProperties": true
