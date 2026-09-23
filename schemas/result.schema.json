@@ -142,7 +142,8 @@
           "required": [
             "title",
             "description",
-            "themes"
+            "themes",
+            "visualMotifs"
           ],
           "properties": {
             "title": {
@@ -164,16 +165,96 @@
                 "minLength": 1,
                 "maxLength": 24
               }
+            },
+            "visualMotifs": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 5,
+              "items": {
+                "type": "object",
+                "required": [
+                  "sourceSystem",
+                  "sourceFact",
+                  "visualMotif"
+                ],
+                "properties": {
+                  "sourceSystem": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "sourceFact": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "visualMotif": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  }
+                },
+                "additionalProperties": false
+              },
+              "description": "算出済みの占術事実から導くカード用の視覚モチーフ"
             }
           },
           "additionalProperties": false,
           "description": "鑑定完了・スキーマ検証後に作る個人情報を含まないカード本文"
+        },
+        "shareGeneration": {
+          "type": "object",
+          "required": [
+            "provider",
+            "model",
+            "toolUsed",
+            "sourceFacts"
+          ],
+          "properties": {
+            "provider": {
+              "const": "ChatGPT"
+            },
+            "model": {
+              "const": "gpt-image"
+            },
+            "toolUsed": {
+              "const": "image_generation"
+            },
+            "sourceFacts": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 5,
+              "items": {
+                "type": "object",
+                "required": [
+                  "sourceSystem",
+                  "sourceFact",
+                  "visualMotif"
+                ],
+                "properties": {
+                  "sourceSystem": {
+                    "type": "string"
+                  },
+                  "sourceFact": {
+                    "type": "string"
+                  },
+                  "visualMotif": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false,
+          "description": "実際にgpt-imageツールを呼んだ後に記録する生成方式・根拠"
         }
       },
       "additionalProperties": true,
       "required": [
         "shareImage",
-        "shareCardCopy"
+        "shareCardCopy",
+        "shareGeneration"
       ]
     }
   },
