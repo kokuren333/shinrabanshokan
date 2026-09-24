@@ -190,6 +190,45 @@
                 "additionalProperties": false
               },
               "description": "算出済みの占術事実から導くカード用の視覚モチーフ"
+            },
+            "sections": {
+              "type": "array",
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "heading": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 360
+                  },
+                  "items": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    }
+                  },
+                  "sourceFacts": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    }
+                  }
+                },
+                "additionalProperties": true
+              },
+              "description": "個人情報を含まず、鑑定の結論・人物像・強み・注意・具体策などを画像に焼き込むための構造化コピー"
             }
           },
           "additionalProperties": true,
