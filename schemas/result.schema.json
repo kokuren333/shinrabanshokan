@@ -134,17 +134,10 @@
       "properties": {
         "shareImage": {
           "type": "string",
-          "const": "assets/share.png",
-          "description": "ZIP内の完成済みシェアカード画像への相対パス"
+          "description": "Optional path or data URL for an imported raster card; omit if unavailable."
         },
         "shareCardCopy": {
           "type": "object",
-          "required": [
-            "title",
-            "description",
-            "themes",
-            "visualMotifs"
-          ],
           "properties": {
             "title": {
               "type": "string",
@@ -158,7 +151,7 @@
             },
             "themes": {
               "type": "array",
-              "minItems": 2,
+              "minItems": 0,
               "maxItems": 3,
               "items": {
                 "type": "string",
@@ -168,7 +161,7 @@
             },
             "visualMotifs": {
               "type": "array",
-              "minItems": 3,
+              "minItems": 0,
               "maxItems": 5,
               "items": {
                 "type": "object",
@@ -199,38 +192,36 @@
               "description": "算出済みの占術事実から導くカード用の視覚モチーフ"
             }
           },
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "鑑定完了・スキーマ検証後に作る個人情報を含まないカード本文"
         },
         "shareGeneration": {
           "type": "object",
-          "required": [
-            "provider",
-            "model",
-            "toolUsed",
-            "sourceFacts"
-          ],
           "properties": {
+            "status": {
+              "enum": [
+                "generated",
+                "unavailable",
+                "failed"
+              ]
+            },
             "provider": {
-              "const": "ChatGPT"
+              "type": "string",
+              "minLength": 1
             },
             "model": {
-              "const": "gpt-image"
+              "type": "string",
+              "minLength": 1
             },
             "toolUsed": {
-              "const": "image_generation"
+              "type": "string",
+              "minLength": 1
             },
             "sourceFacts": {
               "type": "array",
-              "minItems": 3,
               "maxItems": 5,
               "items": {
                 "type": "object",
-                "required": [
-                  "sourceSystem",
-                  "sourceFact",
-                  "visualMotif"
-                ],
                 "properties": {
                   "sourceSystem": {
                     "type": "string"
@@ -244,18 +235,24 @@
                 },
                 "additionalProperties": false
               }
+            },
+            "width": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "message": {
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "description": "実際にgpt-imageツールを呼んだ後に記録する生成方式・根拠"
+          "additionalProperties": true,
+          "description": "Optional truthful record of image generation. It never determines whether the reading ZIP is valid."
         }
       },
-      "additionalProperties": true,
-      "required": [
-        "shareImage",
-        "shareCardCopy",
-        "shareGeneration"
-      ]
+      "additionalProperties": true
     }
   },
   "$defs": {
